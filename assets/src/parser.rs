@@ -72,10 +72,14 @@ fn parse_select(selector: Select) -> assets::Asset {
     let mut parsed: assets::Asset = HashMap::new();
 
     for option in selector.select(&options_selector) {
-        let key = option.value().attr("value").unwrap();
-        let value = option.inner_html();
+        let key = option.value().attr("value").unwrap().trim();
+        let value = option.text().next();
 
-        parsed.insert(key.to_string(), value);
+        if value.is_none() {
+            continue;
+        }
+
+        parsed.insert(key.to_owned(), value.unwrap().trim().to_owned());
     }
 
     parsed
@@ -206,7 +210,7 @@ fn parse_items_categories(
                 name,
                 series,
                 rarities: qualities,
-                category,
+                category: category.to_string(),
             },
         );
     }

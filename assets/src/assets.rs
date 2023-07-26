@@ -20,12 +20,32 @@ pub enum ItemCategories {
     AvatarBorders,
 }
 
+impl ToString for ItemCategories {
+    fn to_string(&self) -> String {
+        match self {
+            ItemCategories::Miscellaneous => "Miscellaneous".to_owned(),
+            ItemCategories::Bodies => "Bodies".to_owned(),
+            ItemCategories::Wheels => "Wheels".to_owned(),
+            ItemCategories::Decals => "Decals".to_owned(),
+            ItemCategories::RocketBoosts => "Rocket boosts".to_owned(),
+            ItemCategories::GoalExplosions => "Goal explosions".to_owned(),
+            ItemCategories::Toppers => "Topper".to_owned(),
+            ItemCategories::PaintFinishes => "Paint finishes".to_owned(),
+            ItemCategories::Antennas => "Antennas".to_owned(),
+            ItemCategories::Trails => "Trails".to_owned(),
+            ItemCategories::Banners => "Banners".to_owned(),
+            ItemCategories::EngineAudio => "Engine audio".to_owned(),
+            ItemCategories::AvatarBorders => "Avatar border".to_owned(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Item {
     pub name: String,
     pub series: Vec<u8>,
     pub rarities: Vec<u8>,
-    pub category: ItemCategories,
+    pub category: String,
 }
 
 pub type Asset = HashMap<String, String>;
