@@ -94,37 +94,3 @@ impl Assets {
         })
     }
 }
-
-impl Assets {
-    pub fn items(&self) -> &HashMap<String, Item> {
-        &self.items
-    }
-
-    pub fn certifications(&self) -> &Asset {
-        &self.certifications
-    }
-
-    pub fn paints(&self) -> &Asset {
-        &self.paints
-    }
-
-    pub fn series(&self) -> &Asset {
-        &self.series
-    }
-
-    pub fn qualities(&self) -> &Asset {
-        &self.qualities
-    }
-
-    pub fn platforms(&self) -> &Asset {
-        &self.platforms
-    }
-
-    pub fn search_types(&self) -> &Asset {
-        &self.search_types
-    }
-
-    pub fn item_types(&self) -> &Asset {
-        &self.item_types
-    }
-}
