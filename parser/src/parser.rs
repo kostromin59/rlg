@@ -115,7 +115,6 @@ pub struct Trade {
 }
 
 impl Trade {
-    // https://rocket-league.com/trade/7gRRxo2
     pub async fn parse_one(link: &str) -> Result<Self, Box<dyn Error>> {
         let document = Self::get_page(link).await?;
         let trade_selector = Selector::parse(".rlg-trade")?;
@@ -123,25 +122,23 @@ impl Trade {
 
         let trade = trades.next().unwrap();
 
-        let info = Self::parse(&trade)?;
+        let parsed = Self::parse(&trade)?;
 
-        Ok(info)
-
-        // let has_selector = Selector::parse(".rlg-trade__itemshas")?;
-        // let wants_selector = Selector::parse("rlg-trade__itemswants")?;
-        // let has = trade.select(&has_selector);
-        // let wants = trade.select(&wants_selector);
-
-        // Ok(Self {
-        //     id: "".to_owned(),
-        //     has: vec![],
-        //     wants: vec![],
-        //     username: "".to_owned(),
-        //     platform: "".to_owned(),
-        // })
+        Ok(parsed)
     }
-    pub fn parse_many(link: &str) -> Result<Vec<Self>, Box<dyn Error>> {
-        Ok(vec![])
+
+    pub async fn parse_many(link: &str) -> Result<Vec<Self>, Box<dyn Error>> {
+        let document = Self::get_page(link).await?;
+        let trade_selector = Selector::parse(".rlg-trade")?;
+        let trades = document.select(&trade_selector);
+
+        let mut parsed: Vec<Self> = vec![];
+
+        for trade in trades {
+            parsed.push(Self::parse(&trade)?);
+        }
+
+        Ok(parsed)
     }
 
     async fn get_page(link: &str) -> Result<Html, Box<dyn Error>> {
