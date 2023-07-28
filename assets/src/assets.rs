@@ -63,11 +63,16 @@ pub struct Assets {
 }
 
 impl Assets {
-    pub fn new() -> Result<Self, Box<dyn Error>> {
-        let assets = Self::read_files().unwrap_or_else(|_| {
-            let parsed = Runtime::new().unwrap().block_on(parser::parse()).unwrap();
-            parsed
-        });
+    pub async fn new() -> Result<Self, Box<dyn Error>> {
+        // let assets = Self::read_files().unwrap_or_else(|_| {
+        //     let parsed = Runtime::new().unwrap().block_on(parser::parse()).unwrap();
+        //     parsed
+        // });
+
+        let assets = match Self::read_files() {
+            Ok(assets) => assets,
+            Err(_) => parser::parse().await.unwrap(),
+        };
 
         Ok(assets)
     }
