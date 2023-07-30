@@ -1,7 +1,6 @@
 use crate::parser;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, error::Error, fs};
-use tokio::runtime::Runtime;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub enum ItemCategories {

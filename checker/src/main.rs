@@ -13,6 +13,18 @@ struct Config {
     links: Vec<String>,
     token: String,
     user: String,
+    time: u64,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            links: vec![],
+            token: String::new(),
+            user: String::new(),
+            time: 60 * 5,
+        }
+    }
 }
 
 struct Checker {
@@ -59,10 +71,11 @@ impl Checker {
         second: Option<&parser::parser::Cell>,
         link: &str,
     ) {
-        if !first.is_none() && second.is_none() {
+        println!("{:?}\n{:?}", first, second);
+        if first.is_none() && !second.is_none() {
             // Отправить в телеграм!
             // println!("Отличие: 1 элемент пустой, второй нет");
-            let second = first.unwrap();
+            let second = second.unwrap();
 
             let new_item = match self.assets.items.get(&second.item) {
                 Some(item) => item.name.to_owned(),
@@ -110,12 +123,11 @@ impl Checker {
                 format!("Отличие!\n\nБыло: ничего\n\nСтало:\nНазвание: {new_item}\nЦвет: {new_paint}\nКачество: {new_quality}\nСертификация: {new_cert}\nСерия: {new_series}\nТип предмета: {new_type}\nКоличество: {second_count}\n\n{link}"),
             ).await;
             return;
-        } else if first.is_none() && !second.is_none() {
+        } else if !first.is_none() && second.is_none() {
             // Отправить в телеграм!
             // println!("Отличие: 2 элемент пустой, певый нет");
-            let first = second.unwrap();
+            let first = first.unwrap();
             let first_count = first.count;
-
             let was_item = match self.assets.items.get(&first.item) {
                 Some(item) => item.name.to_owned(),
                 None => "Неизвестный предмет!".to_owned(),
@@ -275,23 +287,26 @@ impl Checker {
                 let saved_trade = self.trades.iter().find(|saved| saved.id == trade.id);
 
                 if saved_trade.is_none() {
-                    return println!("Такого трейда не найдено!");
+                    return println!(
+                        "Такого трейда не найдено!\nhttps://rocket-league.com/trade/{}",
+                        trade.id
+                    );
                 }
 
                 let saved_trade = saved_trade.unwrap();
 
                 // Сравнить wants
                 for i in 0..saved_trade.wants.len().max(trade.wants.len()) {
-                    let first = trade.wants.get(i);
-                    let second = saved_trade.wants.get(i);
+                    let first = saved_trade.wants.get(i);
+                    let second = trade.wants.get(i);
 
                     self.compare_cells(first, second, link).await;
                 }
 
                 // Сравнить has
                 for i in 0..saved_trade.has.len().max(trade.has.len()) {
-                    let first = trade.has.get(i);
-                    let second = saved_trade.has.get(i);
+                    let first = saved_trade.has.get(i);
+                    let second = trade.has.get(i);
 
                     self.compare_cells(first, second, link).await;
                 }
@@ -305,6 +320,14 @@ impl Checker {
 async fn main() {
     let config = fs::read_to_string("config.json").unwrap_or_else(|_| {
         eprintln!("Ошибка чтения конфига!");
+        let default_config = Config::default();
+        fs::write(
+            "config.json",
+            serde_json::to_string(&default_config).unwrap(),
+        )
+        .unwrap();
+        println!("Конфиг создан, заполните его!");
+
         process::exit(1);
     });
 
@@ -315,8 +338,6 @@ async fn main() {
 
     let bot = Bot::new(config.token);
 
-    // bot.send_message(config.user, "test").await;
-
     println!("Конфиг успешно получен!");
 
     let assets = assets::assets::Assets::new().await.unwrap();
@@ -326,7 +347,7 @@ async fn main() {
     checker.update_trade().await;
 
     loop {
-        thread::sleep(Duration::from_secs(60 * 5));
+        thread::sleep(Duration::from_secs(config.time));
         println!("Цикл");
 
         for link in &config.links {
