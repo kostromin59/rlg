@@ -1,11 +1,6 @@
-use assets;
-use parser;
 use serde::{Deserialize, Serialize};
-use std::{
-    fs, process,
-    thread::{self},
-    time::Duration,
-};
+use std::thread;
+use std::{fs, process, time::Duration};
 use teloxide::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,15 +31,10 @@ struct Checker {
 }
 
 impl Checker {
-    fn new(
-        links: &Vec<String>,
-        bot: Box<Bot>,
-        user: String,
-        assets: assets::assets::Assets,
-    ) -> Self {
+    fn new(links: &[String], bot: Box<Bot>, user: String, assets: assets::assets::Assets) -> Self {
         Self {
             trades: vec![],
-            links: links.clone(),
+            links: links.to_owned(),
             bot,
             user,
             assets,
@@ -54,7 +44,7 @@ impl Checker {
     async fn update_trade(&mut self) {
         let mut parsed: Vec<parser::parser::Trade> = vec![];
         for link in &self.links {
-            let trade = parser::parser::Trade::parse_one(&link).await;
+            let trade = parser::parser::Trade::parse_one(link).await;
 
             match trade {
                 Ok(trade) => parsed.push(trade),
@@ -72,7 +62,7 @@ impl Checker {
         link: &str,
     ) {
         println!("{:?}\n{:?}", first, second);
-        if first.is_none() && !second.is_none() {
+        if first.is_none() && second.is_some() {
             // Отправить в телеграм!
             // println!("Отличие: 1 элемент пустой, второй нет");
             let second = second.unwrap();
@@ -123,7 +113,7 @@ impl Checker {
                 format!("Отличие!\n\nБыло: ничего\n\nСтало:\nНазвание: {new_item}\nЦвет: {new_paint}\nКачество: {new_quality}\nСертификация: {new_cert}\nСерия: {new_series}\nТип предмета: {new_type}\nКоличество: {second_count}\n\n{link}"),
             ).await;
             return;
-        } else if !first.is_none() && second.is_none() {
+        } else if first.is_some() && second.is_none() {
             // Отправить в телеграм!
             // println!("Отличие: 2 элемент пустой, певый нет");
             let first = first.unwrap();
