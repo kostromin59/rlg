@@ -1,2 +1,2 @@
 [workspace]
-members = ["assets", "parser", "checker"]
+members = ["assets", "parser", "checker", "parser-gui/src-tauri"]
