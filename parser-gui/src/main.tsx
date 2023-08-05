@@ -3,9 +3,9 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Page from "./components/layouts/page";
 import Items from "./components/layouts/items";
-import Item from "./components/routes/item";
+import Item, { pricesLoader } from "./components/routes/item";
 import "./styles/index.css";
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import { CssBaseline, ThemeProvider, Typography, createTheme } from "@mui/material";
 import Add from "./components/routes/add";
 
 const darkTheme = createTheme({
@@ -23,6 +23,8 @@ const router = createBrowserRouter([
       { path: "items/add", element: <Add /> },
       {
         path: "items/:id",
+        loader: pricesLoader,
+        errorElement: <Typography variant="h3">Что-то пошло не так!</Typography>,
         element: (
           <>
             <Items />
