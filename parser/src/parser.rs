@@ -6,7 +6,7 @@ use scraper::{
     Selector,
 };
 
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize)]
 pub struct Cell {
     pub item: String,
     pub certification: String,
@@ -17,9 +17,65 @@ pub struct Cell {
     pub count: usize,
 }
 
-const BASE_URL: &'static str = "https://rocket-league.com/";
+const BASE_URL: &str = "https://rocket-league.com/";
 
 impl Cell {
+    pub fn from_link(link: &url::Url) -> Self {
+        let params = link.query_pairs();
+
+        let item = params
+            .clone()
+            .find(|(name, _)| name == "filterItem")
+            .unwrap()
+            .1
+            .to_string();
+
+        let certification = params
+            .clone()
+            .find(|(name, _)| name == "filterCertification")
+            .unwrap_or((Cow::default(), Cow::from("0")))
+            .1
+            .to_string();
+
+        let item_type = params
+            .clone()
+            .find(|(name, _)| name == "filterItemType")
+            .unwrap_or((Cow::default(), Cow::from("0")))
+            .1
+            .to_string();
+
+        let quality = params
+            .clone()
+            .find(|(name, _)| name == "filterRarity")
+            .unwrap_or((Cow::default(), Cow::from("0")))
+            .1
+            .to_string();
+
+        let series = params
+            .clone()
+            .find(|(name, _)| name == "filterSeries")
+            .unwrap_or((Cow::default(), Cow::from("0")))
+            .1
+            .to_string();
+
+        let paint = params
+            .clone()
+            .find(|(name, _)| name == "filterPaint")
+            .unwrap_or((Cow::default(), Cow::from("0")))
+            .1
+            .to_string();
+
+        Cell {
+            item,
+            certification,
+            item_type,
+            quality,
+            series,
+            paint,
+            count: 0,
+        }
+    }
+
     pub fn from_field(field: &Select) -> Result<Vec<Self>, Box<dyn Error>> {
         let cell_selector = Selector::parse(".rlg-item")?;
         let field = field.clone().next().unwrap();
@@ -38,49 +94,7 @@ impl Cell {
             let base_url = url::Url::parse(BASE_URL)?;
             let url_with_params = base_url.join(params)?;
 
-            let params = url_with_params.query_pairs();
-
-            let item = params
-                .clone()
-                .find(|(name, _)| name == "filterItem")
-                .unwrap()
-                .1
-                .to_string();
-
-            let certification = params
-                .clone()
-                .find(|(name, _)| name == "filterCertification")
-                .unwrap_or((Cow::default(), Cow::from("0")))
-                .1
-                .to_string();
-
-            let item_type = params
-                .clone()
-                .find(|(name, _)| name == "filterItemType")
-                .unwrap_or((Cow::default(), Cow::from("0")))
-                .1
-                .to_string();
-
-            let quality = params
-                .clone()
-                .find(|(name, _)| name == "filterRarity")
-                .unwrap_or((Cow::default(), Cow::from("0")))
-                .1
-                .to_string();
-
-            let series = params
-                .clone()
-                .find(|(name, _)| name == "filterSeries")
-                .unwrap_or((Cow::default(), Cow::from("0")))
-                .1
-                .to_string();
-
-            let paint = params
-                .clone()
-                .find(|(name, _)| name == "filterPaint")
-                .unwrap_or((Cow::default(), Cow::from("0")))
-                .1
-                .to_string();
+            let cell_info = Self::from_link(&url_with_params);
 
             let count_selector = Selector::parse(".rlg-item__quantity")?;
             let mut count_element = cell.select(&count_selector);
@@ -91,12 +105,12 @@ impl Cell {
             };
 
             parsed.push(Self {
-                item,
-                certification,
-                item_type,
-                quality,
-                series,
-                paint,
+                item: cell_info.item,
+                certification: cell_info.certification,
+                item_type: cell_info.item_type,
+                quality: cell_info.quality,
+                series: cell_info.series,
+                paint: cell_info.paint,
                 count,
             })
         }

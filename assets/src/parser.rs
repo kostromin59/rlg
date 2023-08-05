@@ -2,7 +2,7 @@ use crate::assets::{self, Item};
 use scraper::{element_ref, html::Select, Html, Selector};
 use std::{collections::HashMap, error::Error, fs, path::Path};
 
-const LINK: &'static str = "https://rocket-league.com/trades/Botlox";
+const LINK: &str = "https://rocket-league.com/trades/Botlox";
 
 pub async fn parse() -> Result<assets::Assets, Box<dyn Error>> {
     let res = reqwest::get(LINK).await?.text().await?;
@@ -225,8 +225,8 @@ fn convert_string_array(value: Option<&str>) -> Vec<u8> {
             let converted = splitted.filter_map(|x| {
                 let number = x.parse::<u8>();
                 match number {
-                    Ok(n) => return Some(n),
-                    Err(_) => return None,
+                    Ok(n) => Some(n),
+                    Err(_) => None,
                 }
             });
 

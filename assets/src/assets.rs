@@ -63,20 +63,15 @@ pub struct Assets {
 
 impl Assets {
     pub async fn new() -> Result<Self, Box<dyn Error>> {
-        // let assets = Self::read_files().unwrap_or_else(|_| {
-        //     let parsed = Runtime::new().unwrap().block_on(parser::parse()).unwrap();
-        //     parsed
-        // });
-
         let assets = match Self::read_files() {
             Ok(assets) => assets,
-            Err(_) => parser::parse().await.unwrap(),
+            Err(_) => parser::parse().await?,
         };
 
         Ok(assets)
     }
 
-    fn read_files() -> Result<Self, Box<dyn Error>> {
+    pub fn read_files() -> Result<Self, Box<dyn Error>> {
         let items = fs::read_to_string("parsed/items.json")?;
         let certifications = fs::read_to_string("parsed/certifications.json")?;
         let paints = fs::read_to_string("parsed/paints.json")?;
