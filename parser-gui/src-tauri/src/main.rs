@@ -3,6 +3,10 @@
 
 use std::{borrow::Cow, sync::Mutex};
 
+use parser::{
+    self,
+    parser::{Cell, Trade},
+};
 use serde::Serialize;
 use tauri::State;
 
@@ -92,8 +96,8 @@ impl Item {
 }
 
 #[tauri::command]
-fn parse(link: String) -> i32 {
-    10
+async fn parse(link: String) -> Vec<Trade> {
+     parser::parser::Trade::parse_many(&link).await.unwrap()
 }
 
 #[tauri::command]

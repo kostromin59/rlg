@@ -1,12 +1,17 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Page from "./components/layouts/page";
 import Items from "./components/layouts/items";
 import Item, { pricesLoader } from "./components/routes/item";
 import "./styles/index.css";
-import { CssBaseline, ThemeProvider, Typography, createTheme } from "@mui/material";
+import {
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+  createTheme,
+} from "@mui/material";
 import Add from "./components/routes/add";
+import React from "react";
 
 const darkTheme = createTheme({
   palette: {
@@ -24,7 +29,9 @@ const router = createBrowserRouter([
       {
         path: "items/:id",
         loader: pricesLoader,
-        errorElement: <Typography variant="h3">Что-то пошло не так!</Typography>,
+        errorElement: (
+          <Typography variant="h3">Что-то пошло не так!</Typography>
+        ),
         element: (
           <>
             <Items />

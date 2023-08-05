@@ -1,4 +1,5 @@
 use std::{borrow::Cow, error::Error};
+use serde::Serialize;
 use url;
 
 use scraper::{
@@ -6,7 +7,7 @@ use scraper::{
     Selector,
 };
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, Serialize)]
 pub struct Cell {
     pub item: String,
     pub certification: String,
@@ -119,7 +120,7 @@ impl Cell {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Trade {
     pub id: String,
     pub has: Vec<Cell>,
