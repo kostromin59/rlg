@@ -1,5 +1,5 @@
-use std::{borrow::Cow, error::Error};
 use serde::Serialize;
+use std::{borrow::Cow, error::Error};
 use url;
 
 use scraper::{
@@ -127,6 +127,7 @@ pub struct Trade {
     pub wants: Vec<Cell>,
     pub username: String,
     pub platform: String,
+    pub time: String,
 }
 
 impl Trade {
@@ -206,12 +207,18 @@ impl Trade {
             _ => "0".to_owned(),
         };
 
+        let time_selector = Selector::parse(".rlg-trade__time span")?;
+        let time = trade.select(&time_selector);
+
+        let time = time.last().unwrap().text().next().unwrap();
+
         Ok(Self {
             id: id.to_owned(),
             has: has_cells,
             wants: wants_cells,
             username: username.to_owned(),
             platform,
+            time: time.to_owned(),
         })
     }
 }

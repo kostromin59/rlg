@@ -38,8 +38,8 @@ const Item = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>ID</TableCell>
                     <TableCell>Никнейм</TableCell>
+                    <TableCell>Время</TableCell>
                     <TableCell>Цена</TableCell>
                   </TableRow>
                 </TableHead>
@@ -53,8 +53,8 @@ const Item = () => {
                         }
                         key={price.id}
                       >
-                        <TableCell>{price.id}</TableCell>
                         <TableCell>{price.username}</TableCell>
+                        <TableCell>{price.time}</TableCell>
                         <TableCell>{price.price}</TableCell>
                       </TableRow>
                     ))}

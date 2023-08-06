@@ -97,6 +97,7 @@ struct Price {
     pub id: String,
     pub username: String,
     pub price: usize,
+    pub time: String,
 }
 
 #[tauri::command]
@@ -138,9 +139,10 @@ async fn parse(link: String) -> Vec<Price> {
                     let price = price.unwrap().count;
 
                     filtered.push(Price {
-                        id: (*trade.id).to_string(),
-                        username: (*trade.username).to_string(),
+                        id: trade.id,
+                        username: trade.username,
                         price,
+                        time: trade.time,
                     });
 
                     break;
@@ -166,9 +168,10 @@ async fn parse(link: String) -> Vec<Price> {
                     let price = price.unwrap().count;
 
                     filtered.push(Price {
-                        id: (*trade.id).to_string(),
-                        username: (*trade.username).to_string(),
+                        id: trade.id,
+                        username: trade.username,
                         price,
+                        time: trade.time,
                     });
 
                     break;
@@ -176,7 +179,6 @@ async fn parse(link: String) -> Vec<Price> {
             }
         }
     }
-
 
     filtered
 }
