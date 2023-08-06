@@ -150,10 +150,10 @@ async fn parse(link: String) -> Vec<Price> {
             // Find in wants
             for (index, cell) in trade.wants.iter().enumerate() {
                 if cell.item == item.item
-                    && cell.paint == item.paint
-                    && (cell.quality == item.quality || item.quality == "0")
+                    && (cell.paint == item.paint)
+                    && (cell.quality == item.quality || item.quality == "A")
                     && (cell.certification == item.certification || item.certification == "0")
-                    && (cell.series == item.series || item.series == "0")
+                    && (cell.series == item.series || item.series == "A")
                     && (cell.item_type == item.item_type
                         || (item.item_type == "0" && cell.item_type == "1"))
                 {
@@ -169,7 +169,9 @@ async fn parse(link: String) -> Vec<Price> {
                         id: (*trade.id).to_string(),
                         username: (*trade.username).to_string(),
                         price,
-                    })
+                    });
+
+                    break;
                 }
             }
         }

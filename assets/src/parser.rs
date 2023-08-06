@@ -30,7 +30,7 @@ pub async fn parse(save: Option<bool>) -> Result<assets::Assets, Box<dyn Error>>
     let save = save.unwrap_or(false);
 
     if save {
-    save_json(serde_json::to_string(&items)?, "items.json")?;
+        save_json(serde_json::to_string(&items)?, "items.json")?;
         save_json(
             serde_json::to_string(&certifications)?,
             "certifications.json",
@@ -44,7 +44,7 @@ pub async fn parse(save: Option<bool>) -> Result<assets::Assets, Box<dyn Error>>
     }
 
     Ok(assets::Assets {
-        items: HashMap::new(),
+        items,
         certifications,
         paints,
         series,
