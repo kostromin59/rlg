@@ -74,7 +74,7 @@ impl Item {
 
         let platform = params
             .clone()
-            .find(|(name, _)| name == "filterPlatform")
+            .find(|(name, _)| name == "filterPlatform[]")
             .unwrap_or((Cow::default(), Cow::from("0")))
             .1
             .to_string();
