@@ -62,11 +62,12 @@ pub struct Assets {
 }
 
 impl Assets {
-    pub async fn new() -> Result<Self, Box<dyn Error>> {
-        let assets = match Self::read_files() {
-            Ok(assets) => assets,
-            Err(_) => parser::parse().await?,
-        };
+    pub async fn new(save: Option<bool>) -> Result<Self, Box<dyn Error>> {
+        let assets = parser::parse(save).await?;
+        // let assets = match Self::read_files() {
+        //     Ok(assets) => assets,
+        //     Err(_) => parser::parse(save).await?,
+        // };
 
         Ok(assets)
     }

@@ -4,13 +4,12 @@ use std::{collections::HashMap, error::Error, fs, path::Path};
 
 const LINK: &str = "https://rocket-league.com/trades/Botlox";
 
-pub async fn parse() -> Result<assets::Assets, Box<dyn Error>> {
+pub async fn parse(save: Option<bool>) -> Result<assets::Assets, Box<dyn Error>> {
     let res = reqwest::get(LINK).await?.text().await?;
     let document = Html::parse_document(&res);
 
     let items_selector = Selector::parse("select#filterItem")?;
     let items = parse_items(document.select(&items_selector));
-    save_json(serde_json::to_string(&items)?, "items.json")?;
 
     let certifications_selector = Selector::parse("select#filterCertification")?;
     let paints_selector = Selector::parse("select#filterPaint")?;
@@ -28,16 +27,21 @@ pub async fn parse() -> Result<assets::Assets, Box<dyn Error>> {
     let search_types = parse_select(document.select(&search_types_selector));
     let item_types = parse_select(document.select(&item_type_selector));
 
-    save_json(
-        serde_json::to_string(&certifications)?,
-        "certifications.json",
-    )?;
-    save_json(serde_json::to_string(&paints)?, "paints.json")?;
-    save_json(serde_json::to_string(&series)?, "series.json")?;
-    save_json(serde_json::to_string(&qualities)?, "qualities.json")?;
-    save_json(serde_json::to_string(&platforms)?, "platforms.json")?;
-    save_json(serde_json::to_string(&search_types)?, "search_types.json")?;
-    save_json(serde_json::to_string(&item_types)?, "item_types.json")?;
+    let save = save.unwrap_or(false);
+
+    if save {
+    save_json(serde_json::to_string(&items)?, "items.json")?;
+        save_json(
+            serde_json::to_string(&certifications)?,
+            "certifications.json",
+        )?;
+        save_json(serde_json::to_string(&paints)?, "paints.json")?;
+        save_json(serde_json::to_string(&series)?, "series.json")?;
+        save_json(serde_json::to_string(&qualities)?, "qualities.json")?;
+        save_json(serde_json::to_string(&platforms)?, "platforms.json")?;
+        save_json(serde_json::to_string(&search_types)?, "search_types.json")?;
+        save_json(serde_json::to_string(&item_types)?, "item_types.json")?;
+    }
 
     Ok(assets::Assets {
         items: HashMap::new(),

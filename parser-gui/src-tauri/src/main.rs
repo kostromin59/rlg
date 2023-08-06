@@ -3,12 +3,9 @@
 
 use std::{borrow::Cow, sync::Mutex};
 
-use parser::{
-    self,
-    parser::{Cell, Trade},
-};
 use serde::Serialize;
 use tauri::State;
+use url::Url;
 
 #[derive(Serialize, Debug)]
 struct Item {
@@ -95,9 +92,91 @@ impl Item {
     }
 }
 
+#[derive(Debug, serde::Serialize)]
+struct Price {
+    pub id: String,
+    pub username: String,
+    pub price: usize,
+}
+
 #[tauri::command]
-async fn parse(link: String) -> Vec<Trade> {
-     parser::parser::Trade::parse_many(&link).await.unwrap()
+async fn parse(link: String) -> Vec<Price> {
+    // Build url
+    let url = Url::parse(&link).unwrap();
+
+    let link = Url::parse_with_params(&link, &[("filterTradeType", "2")]).unwrap();
+
+    let item = Item::from_link(&url);
+    let parsed = parser::parser::Trade::parse_many(link.as_str())
+        .await
+        .unwrap();
+
+    let mut filtered: Vec<Price> = vec![];
+
+    for trade in parsed {
+        if item.platform != "0" && trade.platform != item.platform {
+            continue;
+        }
+
+        if item.search_type == "1" {
+            // Find in has
+            for (index, cell) in trade.has.iter().enumerate() {
+                if cell.item == item.item
+                    && (cell.paint == item.paint)
+                    && (cell.quality == item.quality || item.quality == "A")
+                    && (cell.certification == item.certification || item.certification == "0")
+                    && (cell.series == item.series || item.series == "A")
+                    && (cell.item_type == item.item_type
+                        || (item.item_type == "0" && cell.item_type == "1"))
+                {
+                    let price = trade.wants.get(index);
+
+                    if price.is_none() {
+                        break;
+                    }
+
+                    let price = price.unwrap().count;
+
+                    filtered.push(Price {
+                        id: (*trade.id).to_string(),
+                        username: (*trade.username).to_string(),
+                        price,
+                    });
+
+                    break;
+                }
+            }
+        } else {
+            // Find in wants
+            for (index, cell) in trade.wants.iter().enumerate() {
+                if cell.item == item.item
+                    && cell.paint == item.paint
+                    && (cell.quality == item.quality || item.quality == "0")
+                    && (cell.certification == item.certification || item.certification == "0")
+                    && (cell.series == item.series || item.series == "0")
+                    && (cell.item_type == item.item_type
+                        || (item.item_type == "0" && cell.item_type == "1"))
+                {
+                    let price = trade.has.get(index);
+
+                    if price.is_none() {
+                        break;
+                    }
+
+                    let price = price.unwrap().count;
+
+                    filtered.push(Price {
+                        id: (*trade.id).to_string(),
+                        username: (*trade.username).to_string(),
+                        price,
+                    })
+                }
+            }
+        }
+    }
+
+
+    filtered
 }
 
 #[tauri::command]
@@ -178,7 +257,7 @@ struct AssetsState(Mutex<assets::assets::Assets>);
 
 #[tokio::main]
 async fn main() {
-    let assets = assets::assets::Assets::new().await.unwrap();
+    let assets = assets::assets::Assets::new(Some(false)).await.unwrap();
 
     tauri::Builder::default()
         .manage(AssetsState(Mutex::new(assets)))

@@ -330,7 +330,7 @@ async fn main() {
 
     println!("Конфиг успешно получен!");
 
-    let assets = assets::assets::Assets::new().await.unwrap();
+    let assets = assets::assets::Assets::new(Some(false)).await.unwrap();
     let mut checker = Checker::new(&config.links, Box::new(bot), config.user, assets);
 
     println!("Получаю значения трейда!");

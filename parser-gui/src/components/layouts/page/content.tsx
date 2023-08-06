@@ -2,17 +2,26 @@ import { Grid, Typography } from "@mui/material";
 import { PropsWithChildren } from "react";
 
 type Props = {
-  title: string;
+  title?: string;
+  columns?: number;
 };
 
-const Content = ({ title, children }: PropsWithChildren<Props>) => {
+const Content = ({
+  title,
+  columns = 10,
+  children,
+}: PropsWithChildren<Props>) => {
   return (
-    <Grid xs={10} item>
-      <Grid container direction="column" gap={2} padding={2}>
-        <Typography variant="h3" component="h1">
-          {title}
-        </Typography>
-        <Grid item>{children}</Grid>
+    <Grid xs={columns} item>
+      <Grid container direction="column" gap={2} padding={0}>
+        {title && (
+          <Typography variant="h3" component="h1">
+            {title}
+          </Typography>
+        )}
+        <Grid item padding={0} maxHeight={"100vh"} overflow="scroll">
+          {children}
+        </Grid>
       </Grid>
     </Grid>
   );
