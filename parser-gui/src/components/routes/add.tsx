@@ -13,6 +13,8 @@ const Add = () => {
     setItems((prev) => [...prev, link]);
   };
 
+  const isDisabled = !link.includes("https://rocket-league.com/")
+
   return (
     <Content title="Добавление вещи">
       <Grid container direction="column" gap={2}>
@@ -30,7 +32,7 @@ const Add = () => {
                 label="Ссылка на поиск вещи"
               />
             </Grid>
-            <Button type="submit" variant="contained">
+            <Button disabled={isDisabled} type="submit" variant="contained">
               Создать
             </Button>
           </Grid>
