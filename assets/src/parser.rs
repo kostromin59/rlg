@@ -1,14 +1,13 @@
 use crate::assets::{self, Item};
-use scraper::{element_ref, html::Select, Html, Selector};
+use scraper::{element_ref, html::Select, Selector};
 use std::{collections::HashMap, error::Error, fs, path::Path};
 
 const LINK: &str = "https://rocket-league.com/trades/Botlox";
 
 pub async fn parse(save: Option<bool>) -> Result<assets::Assets, Box<dyn Error>> {
-    let res = reqwest::get(LINK).await?.text().await?;
-    let document = Html::parse_document(&res);
+    let document = cloudflare::get_page(LINK.to_string()).await.unwrap();
 
-    let items_selector = Selector::parse("select#filterItem")?;
+    let items_selector = Selector::parse(".rlg-select")?;
     let items = parse_items(document.select(&items_selector));
 
     let certifications_selector = Selector::parse("select#filterCertification")?;

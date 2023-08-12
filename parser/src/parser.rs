@@ -132,7 +132,7 @@ pub struct Trade {
 
 impl Trade {
     pub async fn parse_one(link: &str) -> Result<Self, Box<dyn Error>> {
-        let document = Self::get_page(link).await?;
+        let document = Self::get_page(link).await;
         let trade_selector = Selector::parse(".rlg-trade")?;
         let mut trades = document.select(&trade_selector);
 
@@ -144,7 +144,7 @@ impl Trade {
     }
 
     pub async fn parse_many(link: &str) -> Result<Vec<Self>, Box<dyn Error>> {
-        let document = Self::get_page(link).await?;
+        let document = Self::get_page(link).await;
         let trade_selector = Selector::parse(".rlg-trade")?;
         let trades = document.select(&trade_selector);
 
@@ -157,9 +157,8 @@ impl Trade {
         Ok(parsed)
     }
 
-    async fn get_page(link: &str) -> Result<Html, Box<dyn Error>> {
-        let res = reqwest::get(link).await?.text().await?;
-        Ok(Html::parse_document(&res))
+    async fn get_page(link: &str) -> Html {
+        cloudflare::get_page(link.to_string()).await.unwrap()
     }
 
     fn parse(trade: &ElementRef) -> Result<Self, Box<dyn Error>> {
