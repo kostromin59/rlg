@@ -47,7 +47,7 @@ impl Item {
         let quality = params
             .clone()
             .find(|(name, _)| name == "filterRarity")
-            .unwrap_or((Cow::default(), Cow::from("0")))
+            .unwrap_or((Cow::default(), Cow::from("A")))
             .1
             .to_string();
 
@@ -125,7 +125,7 @@ async fn parse(link: String) -> Vec<Price> {
                 if cell.item == item.item
                     && (cell.paint == item.paint)
                     && (cell.quality == item.quality || item.quality == "A")
-                    && (cell.certification == item.certification || item.certification == "0")
+                    && (cell.certification == item.certification || item.certification == "0" || item.certification == "A")
                     && (cell.series == item.series || item.series == "A")
                     && (cell.item_type == item.item_type
                         || (item.item_type == "0" && cell.item_type == "1"))
@@ -154,7 +154,7 @@ async fn parse(link: String) -> Vec<Price> {
                 if cell.item == item.item
                     && (cell.paint == item.paint)
                     && (cell.quality == item.quality || item.quality == "A")
-                    && (cell.certification == item.certification || item.certification == "0")
+                    && (cell.certification == item.certification || item.certification == "0" || item.certification == "A")
                     && (cell.series == item.series || item.series == "A")
                     && (cell.item_type == item.item_type
                         || (item.item_type == "0" && cell.item_type == "1"))
