@@ -123,10 +123,15 @@ async fn parse(link: String) -> Vec<Price> {
             // Find in has
             for (index, cell) in trade.has.iter().enumerate() {
                 if cell.item == item.item
-                    && (cell.paint == item.paint)
+                    && (cell.paint == item.paint || (cell.paint == "0" && item.paint == "N"))
                     && (cell.quality == item.quality || item.quality == "A")
-                    && (cell.certification == item.certification || item.certification == "0" || item.certification == "A")
-                    && (cell.series == item.series || item.series == "A")
+                    && (cell.certification == item.certification
+                        || item.certification == "0"
+                        || item.certification == "A"
+                        || (cell.certification == "0" && item.certification == "N"))
+                    && (cell.series == item.series
+                        || item.series == "A"
+                        || (cell.series == "0" && item.series == "N"))
                     && (cell.item_type == item.item_type
                         || (item.item_type == "0" && cell.item_type == "1"))
                 {
@@ -152,10 +157,15 @@ async fn parse(link: String) -> Vec<Price> {
             // Find in wants
             for (index, cell) in trade.wants.iter().enumerate() {
                 if cell.item == item.item
-                    && (cell.paint == item.paint)
+                    && (cell.paint == item.paint || (cell.paint == "0" && item.paint == "N"))
                     && (cell.quality == item.quality || item.quality == "A")
-                    && (cell.certification == item.certification || item.certification == "0" || item.certification == "A")
-                    && (cell.series == item.series || item.series == "A")
+                    && (cell.certification == item.certification
+                        || item.certification == "0"
+                        || item.certification == "A"
+                        || (cell.certification == "0" && item.certification == "N"))
+                    && (cell.series == item.series
+                        || item.series == "A"
+                        || (cell.series == "0" && item.series == "N"))
                     && (cell.item_type == item.item_type
                         || (item.item_type == "0" && cell.item_type == "1"))
                 {
