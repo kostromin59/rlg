@@ -48,7 +48,7 @@ impl Cell {
         let quality = params
             .clone()
             .find(|(name, _)| name == "filterRarity")
-            .unwrap_or((Cow::default(), Cow::from("0")))
+            .unwrap_or((Cow::default(), Cow::from("A")))
             .1
             .to_string();
 
