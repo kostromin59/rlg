@@ -1,6 +1,7 @@
 import {
   Button,
   Grid,
+  Input,
   List,
   ListItemButton,
   ListItemText,
@@ -28,6 +29,7 @@ const buildInfo = (item: Item) => {
 const Items = () => {
   const [items, setItems] = useLocalStorage<string[]>("items", []);
   const [translatedItems, setTranslatedItems] = useState<Item[]>([]);
+  const [search, setSearch] = useState("");
 
   const navigate = useNavigate();
 
@@ -48,19 +50,37 @@ const Items = () => {
     navigate("/items");
   };
 
+  const filteredItems = translatedItems.filter((translated) => {
+    if (!search) return true;
+    const words = search.trim().split(" ");
+
+    return words.every((word) =>
+      Object.values(translated).some((field) =>
+        field.toLowerCase().includes(word.toLowerCase())
+      )
+    );
+  });
+
   return (
     <Grid item xs={3} height={"100vh"} overflow={"scroll"}>
+      <Input
+        placeholder="Поиск..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
       <List>
-        {translatedItems.map((item, index) => (
-          <ListItemButton key={index} component={Link} to={`/items/${index}`}>
-            <Grid container>
-              <ListItemText primary={item.item} secondary={buildInfo(item)} />
-              <Button onClick={(e) => clickHandle(e, index)} variant="text">
-                Удалить!
-              </Button>
-            </Grid>
-          </ListItemButton>
-        ))}
+        {(search.length >= 3 ? filteredItems : filteredItems.slice(0, 10)).map(
+          (item, index) => (
+            <ListItemButton key={index} component={Link} to={`/items/${index}`}>
+              <Grid container>
+                <ListItemText primary={item.item} secondary={buildInfo(item)} />
+                <Button onClick={(e) => clickHandle(e, index)} variant="text">
+                  Удалить!
+                </Button>
+              </Grid>
+            </ListItemButton>
+          )
+        )}
       </List>
     </Grid>
   );

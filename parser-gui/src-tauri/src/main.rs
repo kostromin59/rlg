@@ -3,6 +3,7 @@
 
 use std::{borrow::Cow, sync::Mutex};
 
+use parser::parser;
 use serde::Serialize;
 use tauri::State;
 use url::Url;
@@ -18,6 +19,12 @@ struct Item {
     search_type: String,
     platform: String,
 }
+
+const IGNORE: [&'static str; 32] = [
+    "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12", "c13", "c14",
+    "1709", "1701", "1708", "1707", "1710", "3007", "2999", "1705", "1703", "3000", "544", "3746",
+    "3745", "3744", "3628", "1704", "1706", "2615",
+];
 
 impl Item {
     pub fn from_link(link: &url::Url) -> Self {
@@ -108,9 +115,7 @@ async fn parse(link: String) -> Vec<Price> {
     let link = Url::parse_with_params(&link, &[("filterTradeType", "2")]).unwrap();
 
     let item = Item::from_link(&url);
-    let parsed = parser::parser::Trade::parse_many(link.as_str())
-        .await
-        .unwrap();
+    let parsed = parser::Trade::parse_many(link.as_str()).await.unwrap();
 
     let mut filtered: Vec<Price> = vec![];
 
@@ -191,6 +196,56 @@ async fn parse(link: String) -> Vec<Price> {
     }
 
     filtered
+}
+
+#[tauri::command]
+async fn parse_trade_links(link: String) -> Vec<String> {
+    let trade = parser::Trade::parse_one(&link).await.unwrap();
+    let mut has_cells: Vec<String> = trade
+        .has
+        .iter()
+        .filter(|cell| !IGNORE.contains(&cell.item.as_str())).map(|cell| {
+            format!("https://rocket-league.com/trading?filterItem={}&filterCertification={}&filterPaint={}&filterSeries={}&filterRarity={}&filterTradeType=2&filterSearchType=1&filterItemType={}&filterPlatform[]={}", cell.item, cell.certification, cell.paint, cell.series, cell.quality,cell.item_type, trade.platform)
+        }).collect();
+
+    let mut wants_cells: Vec<String> = trade
+        .wants
+        .iter()
+        .filter(|cell| !IGNORE.contains(&cell.item.as_str())).map(|cell| {
+            format!("https://rocket-league.com/trading?filterItem={}&filterCertification={}&filterPaint={}&filterSeries={}&filterRarity={}&filterTradeType=2&filterSearchType=2&filterItemType={}&filterPlatform[]={}", cell.item, cell.certification, cell.paint, cell.series, cell.quality,cell.item_type, trade.platform)
+        }).collect();
+
+    has_cells.append(&mut wants_cells);
+
+    has_cells
+}
+
+#[tauri::command]
+async fn parse_profile_links(link: String) -> Vec<String> {
+    let trades = parser::Trade::parse_many(&link).await.unwrap();
+    let mut links: Vec<String> = vec![];
+
+    trades.iter().for_each(|trade| {
+        let mut has_cells: Vec<String> = trade
+            .has
+            .iter()
+            .filter(|cell| !IGNORE.contains(&cell.item.as_str())).map(|cell| {
+                format!("https://rocket-league.com/trading?filterItem={}&filterCertification={}&filterPaint={}&filterSeries={}&filterRarity={}&filterTradeType=2&filterSearchType=1&filterItemType={}&filterPlatform[]={}", cell.item, cell.certification, cell.paint, cell.series, cell.quality,cell.item_type, trade.platform)
+            }).collect();
+
+        let mut wants_cells: Vec<String> = trade
+            .wants
+            .iter()
+            .filter(|cell| !IGNORE.contains(&cell.item.as_str())).map(|cell| {
+                format!("https://rocket-league.com/trading?filterItem={}&filterCertification={}&filterPaint={}&filterSeries={}&filterRarity={}&filterTradeType=2&filterSearchType=2&filterItemType={}&filterPlatform[]={}", cell.item, cell.certification, cell.paint, cell.series, cell.quality,cell.item_type, trade.platform)
+            }).collect();
+
+        has_cells.append(&mut wants_cells);
+
+        links.append(&mut has_cells);
+    });
+
+    links
 }
 
 #[tauri::command]
@@ -275,7 +330,12 @@ async fn main() {
 
     tauri::Builder::default()
         .manage(AssetsState(Mutex::new(assets)))
-        .invoke_handler(tauri::generate_handler![links_to_cells, parse])
+        .invoke_handler(tauri::generate_handler![
+            links_to_cells,
+            parse,
+            parse_trade_links,
+            parse_profile_links,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

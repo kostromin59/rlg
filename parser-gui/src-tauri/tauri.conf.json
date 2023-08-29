@@ -7,8 +7,8 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "parser-gui",
-    "version": "0.2.0"
+    "productName": "New Gen Squad Parser",
+    "version": "0.3.0"
   },
   "tauri": {
     "allowlist": {
@@ -50,7 +50,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "parser-gui",
+        "title": "New Gen Squad Parser",
         "width": 800,
         "height": 600
       }
