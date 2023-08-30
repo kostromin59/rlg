@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { invoke } from "@tauri-apps/api";
 import { MouseEvent, useEffect, useState } from "react";
-import { useLocalStorage } from "usehooks-ts";
+import { useLocalStorage, useSessionStorage } from "usehooks-ts";
 import { Item } from "../../../types/item";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -28,14 +28,19 @@ const buildInfo = (item: Item) => {
 
 const Items = () => {
   const [items, setItems] = useLocalStorage<string[]>("items", []);
-  const [translatedItems, setTranslatedItems] = useState<Item[]>([]);
-  const [search, setSearch] = useState("");
+  const [translatedItems, setTranslatedItems] = useState<
+    { index: number; item: Item }[]
+  >([]);
+  const [search, setSearch] = useSessionStorage<string>("search", "");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     invoke<Item[]>("links_to_cells", { links: items }).then((cells) => {
-      setTranslatedItems(cells);
+      const translated: { index: number; item: Item }[] = cells.map(
+        (item, index) => ({ item, index })
+      );
+      setTranslatedItems(translated);
     });
   }, [items]);
 
@@ -55,7 +60,7 @@ const Items = () => {
     const words = search.trim().split(" ");
 
     return words.every((word) =>
-      Object.values(translated).some((field) =>
+      Object.values(translated.item).some((field) =>
         field.toLowerCase().includes(word.toLowerCase())
       )
     );
@@ -70,11 +75,21 @@ const Items = () => {
       />
       <List>
         {(search.length >= 3 ? filteredItems : filteredItems.slice(0, 10)).map(
-          (item, index) => (
-            <ListItemButton key={index} component={Link} to={`/items/${index}`}>
+          (item) => (
+            <ListItemButton
+              key={item.index}
+              component={Link}
+              to={`/items/${item.index}`}
+            >
               <Grid container>
-                <ListItemText primary={item.item} secondary={buildInfo(item)} />
-                <Button onClick={(e) => clickHandle(e, index)} variant="text">
+                <ListItemText
+                  primary={item.item.item}
+                  secondary={buildInfo(item.item)}
+                />
+                <Button
+                  onClick={(e) => clickHandle(e, item.index)}
+                  variant="text"
+                >
                   Удалить!
                 </Button>
               </Grid>
