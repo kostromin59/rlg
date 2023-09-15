@@ -107,8 +107,14 @@ struct Price {
     pub time: String,
 }
 
+#[derive(Debug, serde::Serialize)]
+struct PriceSort {
+    pub prices: Vec<Price>,
+    pub sort_type: bool,
+}
+
 #[tauri::command]
-async fn parse(link: String) -> Vec<Price> {
+async fn parse(link: String) -> PriceSort {
     // Build url
     let url = Url::parse(&link).unwrap();
 
@@ -195,7 +201,12 @@ async fn parse(link: String) -> Vec<Price> {
         }
     }
 
-    filtered
+    let sort = if item.search_type == "1" { true } else { false };
+
+    PriceSort {
+        prices: filtered,
+        sort_type: sort,
+    }
 }
 
 #[tauri::command]

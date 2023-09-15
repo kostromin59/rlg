@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "New Gen Squad Parser",
-    "version": "0.3.1"
+    "version": "0.3.2"
   },
   "tauri": {
     "allowlist": {
@@ -28,7 +28,9 @@
         "removeFile": true,
         "renameFile": true,
         "exists": true,
-        "scope": ["$APP/*"]
+        "scope": [
+          "$APP/*"
+        ]
       }
     },
     "bundle": {
